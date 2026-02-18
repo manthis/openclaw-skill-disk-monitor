@@ -7,10 +7,10 @@ A proactive disk space monitoring skill for [OpenClaw](https://github.com/opencl
 
 ## Features
 
-- 📊 **Multi-volume monitoring** - Track all mounted volumes automatically
+- 📊 **Main disk monitoring** - Tracks only the main system disk (default: `/System/Volumes/Data`)
 - 🚨 **Tiered alerts** - Warning (80%), Critical (90%), Emergency (95%)
 - 📱 **Telegram-friendly** - Formatted messages ready for chat delivery
-- 🎯 **Smart filtering** - Ignores system/temp volumes
+- 🎯 **Smart filtering** - Excludes iOS simulator volumes, system temps, and small volumes
 - 📦 **JSON output** - Structured data for easy integration
 - 🔄 **Heartbeat integration** - Designed for OpenClaw's periodic checks
 
@@ -155,13 +155,19 @@ EMERGENCY_THRESHOLD=95  # Default: 95%
 }
 ```
 
-## Excluded Volumes
+## Monitored Volumes
 
-The following are automatically excluded from monitoring:
+**Default:** Monitors only the **main system disk** (`/System/Volumes/Data` on macOS, typically ~256GB).
 
-- `/dev` and subpaths
-- `/private/var/vm` (macOS swap)
+**Automatically excluded:**
+- iOS simulator volumes (`/Library/Developer/CoreSimulator/*`)
+- System/temp volumes (`/dev`, `/private/var/vm`)
+- Small system volumes (`/System/Volumes/Preboot`, `/System/Volumes/VM`, etc.)
 - `tmpfs`, `devfs`, `map*` filesystems
+
+**Why?** Prevents false alerts from iOS simulator disks that can reach 98% during development.
+
+To monitor additional volumes, edit the mount filter in `check-disk-usage.sh`. See [SKILL.md](SKILL.md) for details.
 
 ## Testing
 

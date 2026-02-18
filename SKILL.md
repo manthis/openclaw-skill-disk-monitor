@@ -8,11 +8,11 @@ This skill monitors all mounted volumes and generates alerts when disk space usa
 
 ## Features
 
-- **Multi-volume monitoring** - Tracks all mounted volumes (excluding system/temp volumes)
+- **Main disk monitoring** - Tracks only the main system disk (default: `/System/Volumes/Data`)
 - **Tiered alerts** - Warning (80%), Critical (90%), Emergency (95%)
 - **JSON output** - Structured data for easy parsing
 - **Telegram-friendly formatting** - Human-readable alert messages
-- **Smart filtering** - Ignores irrelevant system volumes (`/dev`, tmpfs, etc.)
+- **Smart filtering** - Automatically excludes iOS simulator volumes, system temps, and small volumes
 
 ## Requirements
 
@@ -65,20 +65,42 @@ CRITICAL_THRESHOLD=90
 EMERGENCY_THRESHOLD=95
 ```
 
-### Excluded Volumes
+### Monitored Volumes
 
-The script automatically excludes:
-- `/dev` and subpaths
-- `/private/var/vm` (macOS swap)
-- `tmpfs`, `devfs` filesystems
-- `map*` filesystems (autofs)
+**Default behavior:** The script monitors **only the main system disk** (`/System/Volumes/Data` on macOS).
 
-To exclude additional mounts, edit the script's case statement:
+**Automatically excluded:**
+- iOS simulator volumes (`/Library/Developer/CoreSimulator/*`)
+- System/temp volumes (`/dev`, `/private/var/vm`, tmpfs, devfs)
+- Autofs mounts (`map*`)
+- Small system volumes (`/System/Volumes/Preboot`, `/System/Volumes/VM`, etc.)
+
+**To monitor additional volumes:**
+
+Edit the script's mount filter:
 
 ```bash
-case "$mount" in
-    /dev|/dev/*|/private/var/vm|/private/var/vm/*|/your/custom/path) continue ;;
-esac
+# Change this line to include other volumes:
+if [ "$mount" != "/System/Volumes/Data" ]; then
+    continue
+fi
+
+# Example - monitor multiple volumes:
+if [[ "$mount" != "/System/Volumes/Data" && "$mount" != "/Volumes/External" ]]; then
+    continue
+fi
+```
+
+**To monitor ALL volumes (legacy behavior):**
+
+Comment out the main disk filter:
+
+```bash
+# Only monitor main system disk (exclude small system volumes)
+# Main disk is typically /System/Volumes/Data with size >= 200GB
+# if [ "$mount" != "/System/Volumes/Data" ]; then
+#     continue
+# fi
 ```
 
 ## Usage
