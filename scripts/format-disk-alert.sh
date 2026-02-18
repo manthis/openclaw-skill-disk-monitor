@@ -20,16 +20,10 @@ fi
 
 # Process each alert
 echo "$JSON_INPUT" | jq -r '.alerts[] | @json' | while read -r alert; do
-    MOUNT=$(echo "$alert" | jq -r '.mount')
-    LEVEL=$(echo "$alert" | jq -r '.level')
-    USE_PCT=$(echo "$alert" | jq -r '.use_pct')
-    MESSAGE=$(echo "$alert" | jq -r '.message')
-    
-    # Get volume details
-    VOLUME=$(echo "$JSON_INPUT" | jq --arg mount "$MOUNT" '.volumes[] | select(.mount == $mount)')
-    TOTAL_GB=$(echo "$VOLUME" | jq -r '.total_gb | floor')
-    USED_GB=$(echo "$VOLUME" | jq -r '.used_gb | floor')
-    AVAIL_GB=$(echo "$VOLUME" | jq -r '.avail_gb | floor')
+    # Extract all fields in single jq call
+    read -r MOUNT LEVEL USE_PCT TOTAL_GB USED_GB AVAIL_GB <<< $(echo "$alert" | jq -r '[.mount, .level, (.use_pct|tostring)] | @tsv')
+    VOLUME_DATA=$(echo "$JSON_INPUT" | jq --arg mount "$MOUNT" '.volumes[] | select(.mount == $mount) | [(.total_gb|floor), (.used_gb|floor), (.avail_gb|floor)] | @tsv')
+    read -r TOTAL_GB USED_GB AVAIL_GB <<< "$VOLUME_DATA"
     
     # Format based on level
     case "$LEVEL" in
