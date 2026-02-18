@@ -1,0 +1,20 @@
+# Logs
+*.log
+
+# State files
+state.json
+*.state
+
+# macOS
+.DS_Store
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo

@@ -1,0 +1,29 @@
+{
+  "timestamp": "2026-02-18T20:10:00Z",
+  "volumes": [
+    {
+      "mount": "/",
+      "total_gb": 500,
+      "used_gb": 450,
+      "avail_gb": 50,
+      "use_pct": 90,
+      "level": "critical"
+    },
+    {
+      "mount": "/System/Volumes/Data",
+      "total_gb": 500,
+      "used_gb": 350,
+      "avail_gb": 150,
+      "use_pct": 70,
+      "level": "ok"
+    }
+  ],
+  "alerts": [
+    {
+      "mount": "/",
+      "level": "critical",
+      "use_pct": 90,
+      "message": "Only 50GB remaining"
+    }
+  ]
+}
